@@ -1,97 +1,139 @@
-from distutils.log import info
-import json
+"""
+Aniket Jawale
+Jr. Data Science Associate
+Celebal Technologies
+aniket.jawale@celebaltech.com
+"""
+"""
+List of Tasks:
+
+1.Virtual Envirnment Created
+2.Used poetry
+3.Used pytest
+4.Downloaded Requirenment.txt using freeze
+5.Connected Flask
+6.Connection with sqlite3 (File used:details.db)
+7.Used Postman
+8.Used sentiment analysis project to deploy using flask
+"""
+
+#importing necesary libraries
+from flask import Flask,render_template,request
+import pickle
 import sqlite3
-from flask import Flask ,jsonify,render_template,request
+from datetime import datetime
+#creating list 
+sentiments=["Negative","Some what negative","Neutral","Some what positive","Positive"]
 
+# load saved model
+with open(r'model_pkl' , 'rb') as f:
+    model = pickle.load(f)
 
-app = Flask(__name__) 
-@app.route("/")  
-def main():  
-    return "Connection is Succesfull!!!!!"
- 
-@app.route("/Register",methods = ["POST"])  
-def Register():   
-    if request.method == "POST":  
+#Creating Flask API
+app=Flask(__name__)
+#Post Method
+@app.route('/submit',methods=["POST"])
+def submit():
+    '''
+    This method will be called when we want to post the data.
+    So This method will post the review and return the appropriate sentiment of the review
+    '''
+    if request.method=='POST':
+        # Getting the details in json format using postman
+        date1=datetime.now()
         data=request.get_json()
-        PRN_NO=data['PRN_NO']
-        F_NAME=data['F_NAME']
-        EMAIL_ID=data['EMAIL_ID']
-        MOBILE=data['MOBILE']
-        
-        con=sqlite3.connect(r"c:\Users\hp\Documents\Celebal_Technology\Data_Scientist\Tasks\flask_database2_SQLite\Registration.db")
-        cur=con.cursor()
-        # cur.execute("""CREATE TABLE student(fname varchar)""")
-        cur.execute("""INSERT INTO Register(PRN_NO,F_NAME,EMAIL_ID,MOBILE)values(?,?,?,?)""",(PRN_NO,F_NAME,EMAIL_ID,MOBILE))
-        # cur.execute("""INSERT INTO Register(PRN_NO,F_NAME,EMAIL_ID,MOBILE)values("%S","%s","%s","%s")"""(PRN_NO,F_NAME,EMAIL_ID,MOBILE))
-        con.commit()
-        return {"Response":"Successful"}
+        review=data['review']
+        res=(model.predict([review])) #Model doing prediction
+        res=sentiments[res[0]]        # converting the output of int to string in list sentiments
+        res=str(res) #typecasting
+        print(res) #printing result to terminal
+        connection=sqlite3.connect("details2.db") #Connecting to the database
+        cursor=connection.cursor() #Creating cursor
+        #Executing the query
+        cursor.execute("""INSERT INTO details(review,result,timedetails) VALUES(?,?,?)"""  ,(review,res,date1,)) 
+        #Closing the connection
+        connection.commit()
+        #Returning result in Json format
+        return {"response": res}
+@app.route('/getting',methods=["GET"])
+def getting():
+    '''
+    This method will be using GET method.
+    This method return the data in the database in the form of JSON
+    '''
+    #Creating connection and cursor
+    connection=sqlite3.connect("details2.db")
+    cursor=connection.cursor()
+    # Executing query
+    cursor.execute("""SELECT * FROM details""")
+    A=cursor.fetchall()
+    connection.commit()
+    # returning the result
+    return{"response":A}
+@app.route("/delete",methods=["DELETE"])
+def delete():
+    '''
+    Method to delete elements from the database
+    '''
+    a=datetime.now()
+    connection=sqlite3.connect("details2.db")
+    cursor=connection.cursor()
+    cursor.execute(""" DELETE FROM details where timedetails<=(?) """ ,(a,))
+    A=cursor.fetchall()
+    connection.commit()
+    return {"Data":A}
+#Main Method (Driver Code)
+if __name__=='__main__':
+    app.run(debug=True) #Running with debug
 
-@app.route("/Get_info",methods = ["GET"])  
-def Get_info():  
-    if request.method == "GET":  
-        # data=request.get_json()
-        con=sqlite3.connect(r"C:\Users\hp\Documents\Celebal_Technology\Data_Scientist\Tasks\flask_database2_SQLite\Registration.db")
-        cur=con.cursor()
-        cur.execute("""SELECT * FROM Register""")
-        info=cur.fetchall()
-        con.commit()
-        return {"Info:":info}
-    
-@app.route("/DELETE_info/<id>",methods = ["POST"])
-def Delete_info(id):
-      if request.method == "POST":  
-        # data=request.get_json()
-        con=sqlite3.connect(r"C:\Users\hp\Documents\Celebal_Technology\Data_Scientist\Tasks\flask_database2_SQLite\Registration.db")
-        cur=con.cursor()
-        cur.execute("""DELETE FROM Register WHERE PRN_NO =="%s" """ %id)
-        cur.execute("""SELECT * FROM Register""")
-        info=cur.fetchall()
-        con.commit()
-        return {"Info:":info}
+"""
+Output using Get method:
+
+{
+"response": [
+        [
+            "Good",
+            "Somewhat Positive"
+        ],
+        [
+            "bad",
+            "[2]"
+        ],
+        [
+            "bad",
+            "[2]"
+        ],
+        [
+            "bad",
+            "[2]"
+        ],
+        [
+            "bad",
+            "Neutral"
+        ],
+        [
+            "bad",
+            "Neutral"
+        ],
+        [
+            "bad",
+            "Neutral"
+        ]
+    ]
+}
 
 
+"""
+"""
+Output Using Post method:
+Input:
+Body->Json->
+{
+    "review": "Very good"
+}
+Output:
+{
+    "response": "Some what positive"
+}
+"""
 
-
-    
-    
-    
-    
-    
-    
-        """name = request.form["Fname"]  
-        # lname = request.form["Lname"]  
-        # phone = request.form["Phone"]  
-        with sqlite3.connect("student1.db") as con:  
-            cur = con.cursor()  
-            # cur.execute("CREATE TABLE student (fname varchar(20))")
-            # cur.execute('''create table student(Fname, Lname, Phone)''')
-            cur.execute('''INSERT into student(fname) values (?)''',(name))  
-            # cur.execute("select * from student")
-            # a=cur.fetchall()
-            # print(a)
-            con.commit()  
-            msg = "student successfully Added"  """
-
-if __name__ == '__main__': 
-    app.run(debug = True)
-    
-# when we are renedering the html template in that case method select as GET     
-
-# ****************
-# 1.Post Method Register student method
-#Note : 1. we can write filed name as well or we cannot inside insert command
-                # 2.inside the body of postman 
-                    # a.If we select form-data filled in that case inside app.py filed we request for the request.get(name) filled and type key and value filed inside the body section
-                    # b.If we select raw data filled in that case select json filled and type the data inside the body in json format
-                    
- # data = request.form.get('name')  
- 
- 
- 
-#  *******************************
-# 1.Get method for getting data from table
-#     a.go body <ra<json
-#     whatever info is avalable inside inside table is return  
-
-# *****************************************
- 
