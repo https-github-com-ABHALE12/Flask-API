@@ -1,0 +1,18 @@
+virtualenv pr1
+pr1\Scripts\activate
+
+pip install flask
+
+pip install pypi
+
+pip install poetry
+
+pip install pytest
+
+pip install pipenv
+
+pip freeze >requirements. txt
+
+pip installpylint
+
+pip install flake8
