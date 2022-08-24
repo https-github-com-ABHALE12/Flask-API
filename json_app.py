@@ -40,6 +40,9 @@ def info():
 
 ###########################################Sonali##################################################
 
+'''
+Student can register with PRN_NO,F_NAME,EMAIL_ID,MOBILE in registration.db database
+'''
 @app.route("/Register",methods = ["POST"])  
 def Register():   
     if request.method == "POST":  
@@ -55,6 +58,7 @@ def Register():
         con.commit()
         return {"Response":"Successful"}
 
+ #Return the data in the form of JSON using GET method
 @app.route("/Get_info",methods = ["GET"])  
 def Get_info():  
     if request.method == "GET":  
