@@ -108,7 +108,7 @@ def getting():
 
 
 ###########################################Dipti#################################################
-
+#push method for student info
 @app.route("/submit", methods=["POST"])
 def save_details():
     """used to store details in database"""
