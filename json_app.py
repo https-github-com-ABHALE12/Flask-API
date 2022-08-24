@@ -129,7 +129,7 @@ def save_details():
         values(?,?,?,?)""", (fname, lname, roll_no, phone))
         con.commit()
         return {"Response":"Successful"}
-
+#get method for student info
 @app.route("/getdata", methods=["GET"])
 def get_details():
     """used to get details from database"""
