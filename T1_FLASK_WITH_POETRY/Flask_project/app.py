@@ -94,21 +94,3 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
-# when we are renedering the html template in that case method select as GET
-
-# ****************
-# 1.Post Method Register student method
-# Note : 1. we can write filed name as well or we cannot inside insert command
-    # 2.inside the body of postman
-    # a.If we select form-data filled in that case inside app.py filed we request for the request.get(name) filled and type key and value filed inside the body section
-    # b.If we select raw data filled in that case select json filled and type the data inside the body in json format
-
- # data = request.form.get('name')
-
-
-#  *******************************
-# 1.Get method for getting data from table
-#     a.go body <ra<json
-#     whatever info is avalable inside inside table is return
-
-# *****************************************
